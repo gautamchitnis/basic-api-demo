@@ -1,0 +1,78 @@
+<html>
+    <script type="application/javascript">
+    
+        async function listUsers() {
+           let response = await sendGetRequest("http://127.0.0.1:8081/listUsers");
+           document.getElementById("source").value = JSON.stringify(response,null, 4);
+        }
+        
+        async function addUser(user) {
+            let response = await sendPostRequest("http://127.0.0.1:8081/addUser",user);
+            document.getElementById("source").value = JSON.stringify(response,null, 4);
+        }
+        
+        async function deleteUser(id) {
+            let response = await sendDeleteRequest("http://127.0.0.1:8081/deleteUser",id);
+            document.getElementById("source").value = JSON.stringify(response,null, 4);
+        }
+        
+        async function userDetails(id) {
+            let response = await sendGetRequest("http://127.0.0.1:8081/"+id);
+            document.getElementById("source").value = JSON.stringify(response,null, 4);
+        }
+        
+        async function sendGetRequest(url,data) {
+            let res = await fetch(url).then(function(response) {
+                return response.json();
+            });
+            return res;
+        }
+        
+        async function sendPostRequest(url,data) {
+            let res = await fetch(url,{
+                        method: 'POST', // or 'PUT'
+                        body: data.toString(), // data can be `string` or {object}!
+                        headers:{
+                        'Content-Type': 'application/json'
+                        }
+                    }).then(async function(response) {
+                        resp = await response.json();
+                        console.log(resp);
+                        return resp;
+                    });
+            return res;
+        }
+        
+        async function sendDeleteRequest(url,data) {
+            let res = await fetch(url,{
+                        method: 'DELETE', // or 'PUT'
+                        body: JSON.stringify({"id":data.toString()}), // data can be `string` or {object}!
+                        headers:{
+                        'Content-Type': 'application/json'
+                        }
+                    }).then(async function(response) {
+                        resp = await response.json();
+                        console.log(resp);
+                        return resp;
+                    });
+            return res;
+        }
+        
+    </script>
+    <head>
+        <title>Simple API App</title>
+    </head>
+    <body>
+        <h2>User Management</h2>
+        <div style="display: flex;">
+            <div style="width: content;margin-right: 5%;">
+                <textarea rows="20" cols="50" id="source"></textarea>
+                <br>
+                <input type="button" value="List Users" onclick="listUsers()">
+                <input type="button" value="Add User" onclick="addUser(document.getElementById('source').value)">
+                <input type="button" value="Delete User" onclick="deleteUser(document.getElementById('source').value)">
+                <input type="button" value="User Details" onclick="userDetails(document.getElementById('source').value)">
+            </div>
+        </div>
+    </body>
+</html>

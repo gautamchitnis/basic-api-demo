@@ -1,0 +1,87 @@
+<html>
+    <script type="application/javascript">
+        async function generateMadLib(text) {
+            if(text) {
+                let result = "";
+                text = text.trim().split(".");
+                console.log(text);
+                for(i=0;i<text.length;i++) {
+                    entry = text[i];
+                    entry = entry.trim();
+                    let set = entry.match(/(?<=\*)(.*?)(?=\*)/g);
+                    if(set) {
+                        console.log(set);
+                        let res = await fetch('https://api.noopschallenge.com/wordbot?count=1&set='+set[0]).then(function(response) {
+                            return response.json();
+                        });
+                        entry = entry.replace("*"+set[0]+"*",res.words[0]);
+                        console.log(entry);
+                        result = result+entry+". ";
+                    }
+                }
+                
+                document.getElementById("result").innerHTML = result;
+            }
+        }
+        
+        window.onload = function() {
+            let xhr = new XMLHttpRequest();
+
+            // Setup our listener to process completed requests
+            xhr.onload = function () {
+
+                // Process our return data
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    // What do when the request is successful
+                    console.log('success!', xhr.response);
+                    let result = JSON.parse(xhr.response);
+                    document.getElementById("sets").innerHTML = xhr.response.toString().replace("[","").replace("]","");
+                } else {
+                    // What do when the request fails
+                    console.log('The request failed!');
+                }
+
+                // Code that should run regardless of the request status
+                console.log('This always runs...');
+            };
+
+            // Create and send a GET request
+            // The first argument is the post type (GET, POST, PUT, DELETE, etc.)
+            // The second argument is the endpoint URL
+            xhr.open('GET', 'https://api.noopschallenge.com/wordbot/sets');
+            xhr.send();
+        }
+    </script>
+    <head>
+        <title>Simple API App</title>
+    </head>
+    <body>
+        <h2>Simple MadLibs</h2>
+        <div style="display: flex;">
+            <b>Enter your short story here:</b>
+            <br>
+            <br>
+            <div style="width: content;margin-right: 5%;margin-left:5%;">
+                <textarea rows="20" cols="50" id="source"></textarea>
+                <br>
+                <input type="button" value="Generate Story!" onclick="generateMadLib(document.getElementById('source').value)">
+            </div>
+            <div style="width: 50%;">
+                <b>Sample Story:</b>
+                <br>
+                I am *dinosaurs*. I like to *verbs*.
+                <br>
+                <b>Possible tags:</b>
+                <br>
+                <span id="sets" style="width:50%;word-break:break-word;">
+                </span>
+            </div>
+        </div>
+        <br>
+        <h3>The Result:</h3>
+        <br>
+        <div id="result">
+            Story will appear here.
+        </div>      
+    </body>
+</html>
